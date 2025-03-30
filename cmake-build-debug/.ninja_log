@@ -1,0 +1,11 @@
+# ninja log v6
+0	15	1743340375237314690	CMakeFiles/vrp.dir/main.cpp.o.ddi	c59dd28d0bc46f5a
+16	18	1743340375250647976	CMakeFiles/vrp.dir/CXX.dd	d7a7523107a6e828
+16	18	1743340375250647976	/home/goshenkata/CLionProjects/vrp/cmake-build-debug/CMakeFiles/vrp.dir/CXXModules.json	d7a7523107a6e828
+16	18	1743340375250647976	CMakeFiles/vrp.dir/main.cpp.o.modmap	d7a7523107a6e828
+1	1077	1743341343387709868	CMakeFiles/vrp.dir/main.cpp.o	6f0878befa4ee1aa
+1	18	1743341874570216504	build.ninja	aa1e0a1f49ef62b
+1077	1112	1743341344464385846	vrp	1912be54edc4db4e
+2	491	1743341918880294869	CMakeFiles/vrp.dir/graph_class.cpp.o	61d4c7d2e4eb2f3d
+1	540	1743341918880294869	CMakeFiles/vrp.dir/openmp_mpi_solver.cpp.o	d5cc57a7223d09b0
+1	540	1743341918880294869	CMakeFiles/vrp.dir/main.cpp.o	6f0878befa4ee1aa
