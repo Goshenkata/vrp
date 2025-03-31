@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <cmath>
+#include <set>
 
 using namespace std;
 
@@ -15,8 +16,20 @@ struct Point {
 
 class EuclideanSolver {
 public:
+
+       // New method declarations
+    int calculateLowerBound(const set<int>& coveredLocations,
+                           const vector<Point>& locations);
+
+    void FindBestCombination(const vector<vector<int>>& routes,
+                           const vector<int>& routeCosts,
+                           vector<vector<int>>& currentCombination,
+                           size_t index, const vector<Point>& locations,
+                           int& bestCost, vector<vector<int>>& bestCombination,
+                           int num_vehicles, set<int>& coveredLocations,
+                           int currentCost);
     // Method to solve the Vehicle Routing Problem for multiple vehicles
-    static vector<vector<int> > solve(const vector<Point> &locations, const map<int, int> &demand,
+    vector<vector<int> > solve(const vector<Point> &locations, const map<int, int> &demand,
                                       int capacity, int max_stops, int &bestCost, int num_vehicles);
 
     // Method to calculate the Euclidean distance between two points
