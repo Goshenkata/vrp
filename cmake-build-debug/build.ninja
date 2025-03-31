@@ -55,14 +55,8 @@ build CMakeFiles/vrp.dir/main.cpp.o: CXX_COMPILER__vrp_unscanned_Debug /home/gos
   OBJECT_DIR = CMakeFiles/vrp.dir
   OBJECT_FILE_DIR = CMakeFiles/vrp.dir
 
-build CMakeFiles/vrp.dir/openmp_mpi_solver.cpp.o: CXX_COMPILER__vrp_unscanned_Debug /home/goshenkata/CLionProjects/vrp/openmp_mpi_solver.cpp || cmake_object_order_depends_target_vrp
-  DEP_FILE = CMakeFiles/vrp.dir/openmp_mpi_solver.cpp.o.d
-  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always -fopenmp
-  OBJECT_DIR = CMakeFiles/vrp.dir
-  OBJECT_FILE_DIR = CMakeFiles/vrp.dir
-
-build CMakeFiles/vrp.dir/graph_class.cpp.o: CXX_COMPILER__vrp_unscanned_Debug /home/goshenkata/CLionProjects/vrp/graph_class.cpp || cmake_object_order_depends_target_vrp
-  DEP_FILE = CMakeFiles/vrp.dir/graph_class.cpp.o.d
+build CMakeFiles/vrp.dir/euclidean-solver.cpp.o: CXX_COMPILER__vrp_unscanned_Debug /home/goshenkata/CLionProjects/vrp/euclidean-solver.cpp || cmake_object_order_depends_target_vrp
+  DEP_FILE = CMakeFiles/vrp.dir/euclidean-solver.cpp.o.d
   FLAGS = -g -std=gnu++20 -fdiagnostics-color=always -fopenmp
   OBJECT_DIR = CMakeFiles/vrp.dir
   OBJECT_FILE_DIR = CMakeFiles/vrp.dir
@@ -75,7 +69,7 @@ build CMakeFiles/vrp.dir/graph_class.cpp.o: CXX_COMPILER__vrp_unscanned_Debug /h
 #############################################
 # Link the executable vrp
 
-build vrp: CXX_EXECUTABLE_LINKER__vrp_Debug CMakeFiles/vrp.dir/main.cpp.o CMakeFiles/vrp.dir/openmp_mpi_solver.cpp.o CMakeFiles/vrp.dir/graph_class.cpp.o | /usr/lib/libgomp.so /usr/lib/libpthread.a
+build vrp: CXX_EXECUTABLE_LINKER__vrp_Debug CMakeFiles/vrp.dir/main.cpp.o CMakeFiles/vrp.dir/euclidean-solver.cpp.o | /usr/lib/libgomp.so /usr/lib/libpthread.a
   FLAGS = -g
   LINK_LIBRARIES = /usr/lib/libgomp.so  /usr/lib/libpthread.a
   OBJECT_DIR = CMakeFiles/vrp.dir
