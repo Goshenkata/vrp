@@ -1,77 +1,57 @@
 #include <algorithm>
-
-#include "euclidean_solver.h"
+#include <climits>
 #include <set>
-#include <stack>
 #include <unordered_map>
 #include <cmath>
+#include <iostream>
 #include <omp.h>
-#include <limits>
+
+#include "euclidean_solver.h"
 
 using namespace std;
 
-// Modified solve method with support for multiple vehicles
-vector<vector<int>> EuclideanSolver::solve(const vector<Point>& locations, const map<int, int>& demand,
-                                             int capacity, int max_stops, int& bestCost, int num_vehicles) {
-    // Generate all valid routes (each route starts and ends at the depot)
-    vector<vector<int>> routes = GenerateAllCombinations(locations, demand, capacity, max_stops);
+vector<vector<int>> EuclideanSolver::solve(const vector<Point> &locations, const map<int, int> &demand,
+                                          int capacity, int max_stops, int &bestCost, int num_vehicles) {
+    // Check for valid input
+    if (locations.empty() || demand.empty()) {
+        cerr << "Error: Empty locations or demand." << endl;
+        return {};
+    }
+
+    // Initialize variables
     vector<vector<int>> bestCombination;
-    bestCost = numeric_limits<int>::max();
+    bestCost = INT_MAX;
+    set<int> coveredLocations;
 
-    // Calculate and store the cost of each route
-    vector<int> routeCosts(routes.size());
-    #pragma omp parallel for
-    for (size_t i = 0; i < routes.size(); ++i) {
-        routeCosts[i] = static_cast<int>(calculateRouteCost(routes[i], locations));
+    // Generate all valid combinations of routes
+    vector<vector<int>> allCombinations = GenerateAllCombinations(locations, demand, capacity, max_stops);
+    if (allCombinations.empty()) {
+        cerr << "Error: No valid combinations generated." << endl;
+        return {};
     }
 
-    // Sort routes by cost (ascending) for better pruning
-    vector<size_t> routeIndices(routes.size());
-    for (size_t i = 0; i < routes.size(); ++i) {
-        routeIndices[i] = i;
+    // Calculate route costs
+    vector<int> routeCosts(allCombinations.size());
+    for (size_t i = 0; i < allCombinations.size(); ++i) {
+        routeCosts[i] = calculateRouteCost(allCombinations[i], locations);
     }
-    ranges::sort(routeIndices,
-                 [&routeCosts](size_t a, size_t b) { return routeCosts[a] < routeCosts[b]; });
 
-    int num_threads = 24;
-    omp_set_num_threads(num_threads);
-
-    // Use OpenMP tasks to try different starting routes in parallel
-    #pragma omp parallel
-    {
-        #pragma omp single nowait
-        {
-            for (size_t idx = 0; idx < routes.size(); ++idx) {
-                size_t i = routeIndices[idx];
-                EuclideanSolver* solver = this;
-                #pragma omp task firstprivate(i, solver)
-                {
-                    vector<vector<int>> currentCombination;
-                    set<int> coveredLocations;
-                    coveredLocations.insert(0); // Depot is always covered
-                    int currentCost = 0;
-
-                    // Begin recursive search from index i
-                    solver->FindBestCombination(routes, routeCosts, currentCombination, i,
-                                       locations, bestCost, bestCombination,
-                                       num_vehicles, coveredLocations, currentCost);
-                }
-            }
-        }
-    }
+    // Find the best combination of routes
+    vector<vector<int>> tempCombination;
+    FindBestCombination(allCombinations, routeCosts, tempCombination, 0, locations,
+                       bestCost, bestCombination, num_vehicles, coveredLocations, 0);
 
     return bestCombination;
 }
 
 // Calculate a lower bound for the remaining uncovered locations
-int EuclideanSolver::calculateLowerBound(const set<int>& coveredLocations,
-                                         const vector<Point>& locations) {
-    if (coveredLocations.size() >= locations.size()) {
+int EuclideanSolver::calculateLowerBound(const set<int>& coveredLocations, const vector<Point>& locations) {
+    if (coveredLocations.size() >= locations.size() - 1) { // Subtract 1 for depot
         return 0; // All locations are covered
     }
 
     // Find the depot
-    Point depot;
+    Point depot = {0, 0, 0};
     for (const auto& p : locations) {
         if (p.id == 0) {
             depot = p;
@@ -83,41 +63,39 @@ int EuclideanSolver::calculateLowerBound(const set<int>& coveredLocations,
 
     // For each uncovered location, find minimum distance to depot
     for (const auto& point : locations) {
-        if (coveredLocations.find(point.id) == coveredLocations.end()) {
+        if (point.id != 0 && coveredLocations.find(point.id) == coveredLocations.end()) {
             // This location is not covered - we need at least two edges (to and from depot)
             double distToDepot = calculateDistance(point, depot);
             minLowerBound += 2 * distToDepot; // Round trip to depot (minimum possible)
         }
     }
 
-    // This is an optimistic lower bound - in reality, routes will be longer
     return static_cast<int>(minLowerBound);
 }
 
 // Recursive backtracking function with early pruning
 void EuclideanSolver::FindBestCombination(const vector<vector<int>>& routes,
-                                         const vector<int>& routeCosts,
-                                         vector<vector<int>>& currentCombination,
-                                         size_t index, const vector<Point>& locations,
-                                         int& bestCost, vector<vector<int>>& bestCombination,
-                                         int num_vehicles, set<int>& coveredLocations,
-                                         int currentCost) {
-    // Early pruning: if current cost already exceeds best cost, stop exploring this branch
-    if (currentCost >= bestCost) {
-        return;
-    }
+                                        const vector<int>& routeCosts,
+                                        vector<vector<int>>& currentCombination,
+                                        unsigned int index, const vector<Point>& locations,
+                                        int& bestCost, vector<vector<int>>& bestCombination,
+                                        int num_vehicles, set<int>& coveredLocations,
+                                        int currentCost) {
+    // Early pruning conditions
+    if (currentCost >= bestCost) return;
 
-    // Calculate lower bound for remaining locations
     int lowerBound = calculateLowerBound(coveredLocations, locations);
+    if (currentCost + lowerBound >= bestCost) return;
 
-    // If current cost plus lower bound exceeds best cost, prune this branch
-    if (currentCost + lowerBound >= bestCost) {
-        return;
-    }
+    // Check if we've reached the end of our search
+    if (index >= routes.size() || currentCombination.size() == static_cast<unsigned int>(num_vehicles)) {
+        // Check if we've covered all non-depot locations
+        int nonDepotLocations = 0;
+        for (const auto& point : locations) {
+            if (point.id != 0) nonDepotLocations++;
+        }
 
-    // If we've considered all routes or already used the available vehicles, check if the combination covers all locations.
-    if (index >= routes.size() || currentCombination.size() == (size_t)num_vehicles) {
-        if (coveredLocations.size() == locations.size()) {
+        if (coveredLocations.size() == nonDepotLocations) {
             #pragma omp critical
             {
                 if (currentCost < bestCost) {
@@ -129,11 +107,10 @@ void EuclideanSolver::FindBestCombination(const vector<vector<int>>& routes,
         return;
     }
 
-    // Option 1: Try adding the current route if it does not cause overlap.
+    // Option 1: Try adding the current route if it does not cause overlap
     bool overlap = false;
     set<int> newLocations;
 
-    // Check each non-depot location in the candidate route.
     for (int loc : routes[index]) {
         if (loc == 0) continue; // Skip depot
         if (coveredLocations.find(loc) != coveredLocations.end()) {
@@ -144,37 +121,24 @@ void EuclideanSolver::FindBestCombination(const vector<vector<int>>& routes,
     }
 
     if (!overlap) {
-        // Add this route
+        // Add this route and continue search
         currentCombination.push_back(routes[index]);
+        for (int loc : newLocations) coveredLocations.insert(loc);
 
-        // Update covered locations
-        for (int loc : newLocations) {
-            coveredLocations.insert(loc);
-        }
-
-        // Update current cost
-        int newCost = currentCost + routeCosts[index];
-
-        // Continue search
         FindBestCombination(routes, routeCosts, currentCombination, index + 1,
-                           locations, bestCost, bestCombination, num_vehicles,
-                           coveredLocations, newCost);
+                          locations, bestCost, bestCombination, num_vehicles,
+                          coveredLocations, currentCost + routeCosts[index]);
 
-        // Backtrack: remove locations from coverage
-        for (int loc : newLocations) {
-            coveredLocations.erase(loc);
-        }
-
+        // Backtrack
+        for (int loc : newLocations) coveredLocations.erase(loc);
         currentCombination.pop_back();
     }
 
-    // Option 2: Skip the current route and move to the next.
+    // Option 2: Skip the current route and move to the next
     FindBestCombination(routes, routeCosts, currentCombination, index + 1,
-                       locations, bestCost, bestCombination, num_vehicles,
-                       coveredLocations, currentCost);
+                      locations, bestCost, bestCombination, num_vehicles,
+                      coveredLocations, currentCost);
 }
-
-// Other methods remain unchanged
 
 double EuclideanSolver::calculateDistance(const Point& p1, const Point& p2) {
     double dx = p1.x - p2.x;
@@ -183,22 +147,19 @@ double EuclideanSolver::calculateDistance(const Point& p1, const Point& p2) {
 }
 
 double EuclideanSolver::calculateRouteCost(const vector<int>& route, const vector<Point>& locations) {
-    if (route.size() <= 1) {
-        return 0;
-    }
+    if (route.size() <= 1) return 0;
+
     double totalCost = 0;
     // Helper lambda to find a point by its ID
     auto findPoint = [&locations](int id) -> const Point& {
         for (const auto& point : locations) {
-            if (point.id == id) {
-                return point;
-            }
+            if (point.id == id) return point;
         }
         static Point dummy = {-1, 0, 0};
         return dummy;
     };
 
-    for (size_t i = 0; i < route.size() - 1; i++) {
+    for (unsigned int i = 0; i < route.size() - 1; i++) {
         const Point& p1 = findPoint(route[i]);
         const Point& p2 = findPoint(route[i + 1]);
         totalCost += calculateDistance(p1, p2);
@@ -206,16 +167,11 @@ double EuclideanSolver::calculateRouteCost(const vector<int>& route, const vecto
     return totalCost;
 }
 
-bool EuclideanSolver::verifyValidRoute(const vector<int>& route) {
-    // All routes are valid with Euclidean distance
-    return true;
-}
-
 vector<vector<int>> EuclideanSolver::GenerateAllCombinations(const vector<Point>& locations,
-                                                               const map<int, int>& demand,
-                                                               int capacity, int max_stops) {
+                                                          const map<int, int>& demand,
+                                                          int capacity, int max_stops) {
     vector<vector<int>> routes;
-    int n = locations.size();
+    unsigned long n = locations.size();
     vector<vector<int>> all_routes(1 << n);
 
     #pragma omp parallel for
@@ -245,13 +201,9 @@ vector<vector<int>> EuclideanSolver::GenerateAllCombinations(const vector<Point>
         }
 
         // Add depot as first and last point if not already there
-        if (!invalid && !route.empty() && route.size() <= (size_t)max_stops) {
-            if (route[0] != 0) {
-                route.insert(route.begin(), 0);
-            }
-            if (route.back() != 0) {
-                route.push_back(0);
-            }
+        if (!invalid && !route.empty() && route.size() <= (unsigned int)max_stops) {
+            if (route[0] != 0) route.insert(route.begin(), 0);
+            if (route.back() != 0) route.push_back(0);
             all_routes[i] = route;
         }
     }
@@ -262,30 +214,4 @@ vector<vector<int>> EuclideanSolver::GenerateAllCombinations(const vector<Point>
         }
     }
     return routes;
-}
-
-int EuclideanSolver::CalculateTotalCost(const vector<vector<int>>& routes, const vector<Point>& locations) {
-    double totalCost = 0;
-    #pragma omp parallel for reduction(+:totalCost)
-    for (size_t i = 0; i < routes.size(); ++i) {
-        totalCost += calculateRouteCost(routes[i], locations);
-    }
-    return static_cast<int>(totalCost);
-}
-
-// We don't need this function anymore since we're tracking covered locations directly
-bool EuclideanSolver::coversAllLocations(const vector<vector<int>>& combination, const vector<Point>& locations) {
-    set<int> uncoveredLocations;
-    // Add all non-depot location IDs
-    for (const auto& point : locations) {
-        if (point.id != 0) {
-            uncoveredLocations.insert(point.id);
-        }
-    }
-    for (const auto& route : combination) {
-        for (int loc_id : route) {
-            uncoveredLocations.erase(loc_id);
-        }
-    }
-    return uncoveredLocations.empty();
 }
