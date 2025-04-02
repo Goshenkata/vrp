@@ -9,7 +9,7 @@ using namespace std;
 using namespace std::chrono;
 
 int main() {
-    // Hardcoded VRP data
+
     vector<Point> locations = {
         {0, 0, 0},  // Depot
         {1, 5, 5},
