@@ -38,8 +38,6 @@ vector<vector<int>> EuclideanSolver::solve(const vector<Point>& locations, const
     return bestCombination;
 }
 
-// Recursive backtracking function with an extra parameter for num_vehicles.
-// This version checks for overlapping non-depot locations before adding a route.
 void EuclideanSolver::FindBestCombination(const vector<vector<int>>& routes,
                                             vector<vector<int>>& currentCombination,
                                             size_t index, const vector<Point>& locations,
@@ -59,6 +57,9 @@ void EuclideanSolver::FindBestCombination(const vector<vector<int>>& routes,
         }
         return;
     }
+
+    //This code checks whether the candidate route (from routes[index]) overlaps with any of the routes already in currentCombination.
+    //The goal is to ensure that each location (except the depot) is visited only once across all routes.
 
     // Option 1: Try adding the current route if it does not cause overlap.
     bool overlap = false;
