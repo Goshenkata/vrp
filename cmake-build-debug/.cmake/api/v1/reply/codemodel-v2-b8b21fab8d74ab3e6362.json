@@ -27,7 +27,7 @@
 					[
 						0
 					],
-					"name" : "vrp",
+					"name" : "VRPProject",
 					"targetIndexes" : 
 					[
 						0
@@ -38,9 +38,9 @@
 			[
 				{
 					"directoryIndex" : 0,
-					"id" : "vrp::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-vrp-Debug-78590284954faf25c19e.json",
-					"name" : "vrp",
+					"id" : "vrp_solver::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-vrp_solver-Debug-b816d1c143a829c8e76f.json",
+					"name" : "vrp_solver",
 					"projectIndex" : 0
 				}
 			]

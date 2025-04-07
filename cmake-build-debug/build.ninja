@@ -11,7 +11,7 @@
 # =============================================================================
 
 # =============================================================================
-# Project: vrp
+# Project: VRPProject
 # Configurations: Debug
 # =============================================================================
 
@@ -41,42 +41,36 @@ include CMakeFiles/rules.ninja
 
 cmake_ninja_workdir = /home/goshenkata/CLionProjects/vrp/cmake-build-debug/
 # =============================================================================
-# Object build statements for EXECUTABLE target vrp
+# Object build statements for EXECUTABLE target vrp_solver
 
 
 #############################################
-# Order-only phony target for vrp
+# Order-only phony target for vrp_solver
 
-build cmake_object_order_depends_target_vrp: phony || .
+build cmake_object_order_depends_target_vrp_solver: phony || .
 
-build CMakeFiles/vrp.dir/main.cpp.o: CXX_COMPILER__vrp_unscanned_Debug /home/goshenkata/CLionProjects/vrp/main.cpp || cmake_object_order_depends_target_vrp
-  DEP_FILE = CMakeFiles/vrp.dir/main.cpp.o.d
-  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always -fopenmp
-  OBJECT_DIR = CMakeFiles/vrp.dir
-  OBJECT_FILE_DIR = CMakeFiles/vrp.dir
-
-build CMakeFiles/vrp.dir/euclidean-solver.cpp.o: CXX_COMPILER__vrp_unscanned_Debug /home/goshenkata/CLionProjects/vrp/euclidean-solver.cpp || cmake_object_order_depends_target_vrp
-  DEP_FILE = CMakeFiles/vrp.dir/euclidean-solver.cpp.o.d
-  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always -fopenmp
-  OBJECT_DIR = CMakeFiles/vrp.dir
-  OBJECT_FILE_DIR = CMakeFiles/vrp.dir
+build CMakeFiles/vrp_solver.dir/main.cpp.o: CXX_COMPILER__vrp_solver_unscanned_Debug /home/goshenkata/CLionProjects/vrp/main.cpp || cmake_object_order_depends_target_vrp_solver
+  DEP_FILE = CMakeFiles/vrp_solver.dir/main.cpp.o.d
+  FLAGS = -fopenmp -g -std=gnu++17 -fdiagnostics-color=always
+  INCLUDES = -I/home/goshenkata/CLionProjects/vrp
+  OBJECT_DIR = CMakeFiles/vrp_solver.dir
+  OBJECT_FILE_DIR = CMakeFiles/vrp_solver.dir
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target vrp
+# Link build statements for EXECUTABLE target vrp_solver
 
 
 #############################################
-# Link the executable vrp
+# Link the executable vrp_solver
 
-build vrp: CXX_EXECUTABLE_LINKER__vrp_Debug CMakeFiles/vrp.dir/main.cpp.o CMakeFiles/vrp.dir/euclidean-solver.cpp.o | /usr/lib/libgomp.so /usr/lib/libpthread.a
-  FLAGS = -g
-  LINK_LIBRARIES = /usr/lib/libgomp.so  /usr/lib/libpthread.a
-  OBJECT_DIR = CMakeFiles/vrp.dir
+build vrp_solver: CXX_EXECUTABLE_LINKER__vrp_solver_Debug CMakeFiles/vrp_solver.dir/main.cpp.o
+  FLAGS = -fopenmp -g
+  OBJECT_DIR = CMakeFiles/vrp_solver.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_FILE = vrp
-  TARGET_PDB = vrp.dbg
+  TARGET_FILE = vrp_solver
+  TARGET_PDB = vrp_solver.dbg
 
 
 #############################################
@@ -112,7 +106,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 #############################################
 # Folder: /home/goshenkata/CLionProjects/vrp/cmake-build-debug
 
-build all: phony vrp
+build all: phony vrp_solver
 
 # =============================================================================
 # Built-in targets

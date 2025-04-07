@@ -843,7 +843,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "vrp"
+			"value" : "VRPProject"
 		},
 		{
 			"name" : "CMAKE_RANLIB",
@@ -1344,6 +1344,42 @@
 			],
 			"type" : "FILEPATH",
 			"value" : "/usr/lib/libpthread.a"
+		},
+		{
+			"name" : "VRPProject_BINARY_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "/home/goshenkata/CLionProjects/vrp/cmake-build-debug"
+		},
+		{
+			"name" : "VRPProject_IS_TOP_LEVEL",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "ON"
+		},
+		{
+			"name" : "VRPProject_SOURCE_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "/home/goshenkata/CLionProjects/vrp"
 		},
 		{
 			"name" : "_CMAKE_LINKER_PUSHPOP_STATE_SUPPORTED",
